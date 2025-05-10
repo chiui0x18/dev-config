@@ -84,7 +84,7 @@ export FZF_DEFAULT_OPTS='--layout=reverse'
 export FZF_CTRL_T_OPTS="
   --walker-skip .git
   --preview 'bat -n --color=always --theme \"Monokai Extended Bright\" {}'
-  --preview-window 'right,border-left,50%,<50(down,50%,border-top)'
+  --preview-window 'right,border-left,50%,wrap,<50(down,50%,border-top)'
   --bind 'ctrl-/:change-preview-window(down|hidden|)'"
 
 # tmux related
