@@ -1,0 +1,15 @@
+[color]
+    ui = auto
+[core]
+    # so that we don't need to enter into paging mode if history etc can fit to screen
+    pager = less -FMRiX
+    editor = vim
+    excludesfile = ~/.gitignore_global
+[alias]
+	co = checkout
+	br = branch
+	ci = commit
+	st = status
+    dag = log --graph --format='format:%C(yellow)%h%C(reset) %C(cyan)\"%an\" <%ae>%C(reset) %C(red)%cr%C(reset)%C(auto)%d%C(reset)%n%s' --date-order
+    ddag = log --all --abbrev-commit --decorate --graph --date-order
+    pr = pull --rebase

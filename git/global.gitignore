@@ -1,0 +1,47 @@
+# OS generated files #
+######################
+**/.DS_Store
+**/.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Temporary files #
+###################
+**/*.bak
+**/*.swp
+**/*.swo
+*~
+*#
+# ctags tag file
+**/tags
+
+# IDE files #
+#############
+.vscode
+.idea
+.iml
+**/*.sublime-workspace
+
+# Logs and databases #
+######################
+*.log
+*.sql
+*.sqlite
+
+# Compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+*.pyc
+*.pyo
+
+# .dev folder for dev testing projects
+**/.dev
