@@ -1,3 +1,5 @@
+# To use this config, copy it to ~/.zshrc
+
 # homebrew shell auto-completion
 if type brew &>/dev/null; then
   FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH
@@ -64,7 +66,7 @@ ZSH_THEME="ys"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
-  git osx golang autojump docker docker-compose
+  osx git autojump
 )
 
 source $ZSH/oh-my-zsh.sh
@@ -76,13 +78,15 @@ source $ZSH/oh-my-zsh.sh
 # You may need to manually set your language environment
 # export LANG=en_US.UTF-8
 
+# configure PATH
+export PATH="$HOME/bin:/usr/local/bin:/usr/local/sbin:$PATH"
+
 ### Vim ###
 # use Vim from HomeBrew
 export PATH=$VIM_HOME:$PATH
 # note the real vi is not able to copy stuff to clipboard; Thus we need to point it to
 # vim which is capable doing so
 alias vi=vim
-
 # Preferred editor for local and remote sessions
 export EDITOR=vim
 # specify editor for Git
@@ -116,47 +120,9 @@ setopt interactivecomments
 # enable spelling corrector
 setopt CORRECT
 
-### Python ###
-# python shell tab-completion, osx doesn't provide this for free
-export PYTHONSTARTUP="$HOME/.pythonrc"
-
-### Java ###
-# Java development setup on OSX. See
-# https://www.mkyong.com/java/how-to-set-java_home-environment-variable-on-mac-os-x/
-# This makes the path to JDK of desired version available in current shell session
-export JAVA_HOME=$(/usr/libexec/java_home -v 12.0)
-
-### NodeJS ###
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-### Golang ###
-# GOPATH
-export GOPATH=~/go
-# make go project executables easy to access
-export PATH=$PATH:$GOPATH/bin
+# Load utility functions
+source "$HOME/.functions.zsh"
 
 # Go module proxy (for region where golang.org is blocked, like China)
 # export GOPROXY=https://goproxy.io
 
-# include executable in local sbin
-export PATH="/usr/local/sbin:$PATH"
-
-# direnv to manage project-specific env var
-eval "$(direnv hook zsh)"
-
-# handy utility functions
-
-# count string length in number of characters
-# Need to check if the current locale supports multi-byte chars or not
-function slen()
-{
-    echo -n "$@" | wc -m | sed -e 's/^[ \t]*//'
-}
-
-# function to print escaped, minified json string
-function lj()
-{
-    echo "$@" | python -m json.tool
-}
