@@ -1,8 +1,3 @@
-" inspired by following rc:
-" - https://github.com/mitchellh/vim-misc/blob/master/vimrc.vim
-set nocompatible              " required?
-filetype off                  " required?
-
 " ============== Backup ==============
 " Protect changes between writes. Default values of
 " updatecount (200 keystrokes) and updatetime
@@ -13,6 +8,10 @@ set directory^=~/.vim/swap//
 set writebackup
 " but do not persist backup after successful write
 set nobackup
+" keep undo/edit history recoverable after closing and re-opening
+" a file, as long as the history is around
+set undofile
+set undodir^=~/.vim/undo//
 
 " ============== Motion ==============
 " key combos used in navigation of multiple splited panels
@@ -37,10 +36,20 @@ hi Search guibg=Red
 set incsearch
 " search for selected text in visual mode
 vnoremap // y/\V<C-R>=escape(@",'/\')<CR><CR>
-" Make j/k down and up visual lines instead of real ones. This makes word
-" wrapping a lot more pleasent.
-map j gj
-map k gk
+" searching w/ smarter casing
+set ignorecase
+set smartcase
+" Make j/k go down and up visual lines instead of real ones. This makes word
+" wrapping a lot more pleasent. NOTE enable this only in Normal and Visual mode
+" instead of all modes (previous behavior w/ `map`) so that command w/ counts
+" e.g `d2j` (delete 2 real, instead of visual lines below) can work as expected.
+nnoremap <expr> j v:count == 0 ? 'gj' : 'j'
+nnoremap <expr> k v:count == 0 ? 'gk' : 'k'
+vnoremap <expr> j v:count == 0 ? 'gj' : 'j'
+vnoremap <expr> k v:count == 0 ? 'gk' : 'k'
+
+set wildmenu
+set wildmode=longest:full,full
 
 " ============== Editing ==============
 " the <leader> key
@@ -49,7 +58,7 @@ let mapleader=' '
 set autoread
 " enable backspacing on existing text besides start of insert, so that
 " deletion behavior via CTRL-W and CTRL-H is more ergonomic 
-set backspace=indent,eol,start,nostop
+set backspace=indent,eol,start
 " General indent
 " show existing tab with 4 spaces width
 set tabstop=4
@@ -58,7 +67,7 @@ set shiftwidth=4
 " On pressing tab, insert 4 spaces
 set expandtab
 " For editing web content, shell scripts and config files
-au BufNewFile,BufRead *.json,*.yml,*.yaml,*.html,*.haml,*.css,*.xml,*.sh,*.conf:
+au BufNewFile,BufRead *.json,*.yml,*.yaml,*.html,*.haml,*.css,*.xml,*.sh,*.conf,*.js,*.ts
     \ setlocal tabstop=2 |
     \ setlocal softtabstop=2 |
     \ setlocal shiftwidth=2 |
@@ -70,7 +79,11 @@ set number relativenumber ruler
 "Enable UTF-8 support
 set encoding=utf-8
 " Enable accessing the system's clipboard
-set clipboard=unnamed
+if has('macunix')
+    set clipboard=unnamed
+elseif has('linux')
+    set clipboard=unnamedplus
+endif
 " linewrap indicator
 set showbreak=↪
 
@@ -82,42 +95,21 @@ call plug#begin('~/.vim/plugs')
 Plug 'rafi/awesome-vim-colorschemes'
 " fast word quoting / wrapping
 Plug 'tpope/vim-surround'
-" auto pair braces
-Plug 'jiangmiao/auto-pairs'
-" Enable super(fuzzy) searching in VIM by ctrl + p, which similar to Sublime
-Plug 'ctrlpvim/ctrlp.vim'
+Plug 'tpope/vim-repeat'
+Plug 'andymass/vim-matchup'
+" ctrlp is acceptable but prefer fzf for speedy search
+Plug 'junegunn/fzf'
+Plug 'junegunn/fzf.vim'
 " enable better json view
 Plug 'elzr/vim-json', { 'for': 'json' }
-" Enable tagbar so that we can see the tag structure of a file(useful if we are
-" inspecting a module
-Plug 'majutsushi/tagbar', { 'for': ['go', 'c', 'python', 'rust'] }
 " Language Server Protocol plugins
 " supported commands see https://github.com/prabirshrestha/vim-lsp#supported-commands
-Plug 'prabirshrestha/vim-lsp', { 'for': ['rust', 'go', 'c'] }
-Plug 'mattn/vim-lsp-settings', { 'for': ['rust', 'go', 'c'] }
+Plug 'prabirshrestha/vim-lsp', { 'for': ['rust', 'go', 'c', 'python'] }
+Plug 'mattn/vim-lsp-settings', { 'for': ['rust', 'go', 'c', 'python'] }
 " auto-completion on edit
-Plug 'prabirshrestha/asyncomplete.vim', { 'for': ['rust', 'go', 'c'] }
-Plug 'prabirshrestha/asyncomplete-lsp.vim', { 'for': ['rust', 'go', 'c'] }
-
+Plug 'prabirshrestha/asyncomplete.vim', { 'for': ['rust', 'go', 'c', 'python'] }
+Plug 'prabirshrestha/asyncomplete-lsp.vim', { 'for': ['rust', 'go', 'c', 'python'] }
 call plug#end()
-
-" below list less commonly used but still useful plugins
-" multi-cursor editing support
-" NOTE try using vim builtin feature like macros to fulfill multi-spot-editing
-" need instead of just relying on plugins. Read the manual Luke.
-"Plug 'mg979/vim-visual-multi'
-" edit html markup faster
-"Plug 'mattn/emmet-vim', { 'for': ['html'] }
-" use lsp for any language-specific features
-" vim-go https://github.com/fatih/vim-go
-"Plug 'fatih/vim-go', { 'for': 'go' }
-" rustlang
-"Plug 'rust-lang/rust.vim', { 'for': ['rust'] }
-
-" golang gopls LSP integration
-" https://github.com/golang/go/wiki/gopls
-"let g:go_def_mode='gopls'
-"let g:go_info_mode='gopls'
 
 " ============== Productivity ==============
 " faster save
@@ -126,6 +118,8 @@ nnoremap <Leader>w :w<CR>
 nnoremap <Leader>q :wq<CR>
 " faster forced quit. Watch out for your unsaved changes!
 nnoremap <Leader>Q :q!<CR>
+" faster clean-up of ALL content in curernt buffer
+nnoremap <Leader>D :%d<CR>
 " faster panel splits
 nnoremap <Leader>v :vsplit<Space>
 nnoremap <Leader>V :split<Space>
@@ -145,10 +139,11 @@ nnoremap <Leader>t :Vter<CR>
 nnoremap <Leader>T :terminal<CR>
 " jsonify text
 nnoremap =j :%!python3 -m json.tool<CR>
-" press F8 to tag bar
-nnoremap <F8> :TagbarToggle<CR>
-" put the tagbar panel on the left of editor panel
-let g:tagbar_left=1
+" remap ctrlp to fuzzy search w/ fzf
+nnoremap <C-P> :Files<CR>
+" fast code search with given pattern w/ ripgrep
+nnoremap <Leader>g :Rg<CR>
+
 " lsp mapping setups 
 " https://github.com/prabirshrestha/vim-lsp#registering-servers
 function! s:on_lsp_buffer_enabled() abort
@@ -171,7 +166,7 @@ function! s:on_lsp_buffer_enabled() abort
     " abort formatting if not done in 1s
     let g:lsp_format_sync_timeout = 1000
     " formatting selected file types on save
-    autocmd! BufWritePre *.rs,*.go,*.c,*.h call execute('LspDocumentFormatSync')
+    autocmd! BufWritePre *.rs,*.go,*.c,*.h,*.py call execute('LspDocumentFormatSync')
     " TODO refer to doc to add more commands
 endfunction
 
@@ -200,5 +195,5 @@ set laststatus=0
 " groups below differently
 " > When Vim knows the normal foreground, background and underline colors,
 " > 'fg', 'bg' and 'ul' can be used as color names.
-hi StatusLine term=bold cterm=bold ctermfg=fg ctermbg=bg guifg=fg guibg=bg
-hi StatusLineNC ctermfg=fg ctermbg=bg guifg=fg guibg=bg
+hi StatusLine term=bold,reverse cterm=bold,reverse ctermfg=fg ctermbg=bg guifg=fg guibg=bg
+hi StatusLineNC term=bold cterm=bold ctermfg=fg ctermbg=bg guifg=fg guibg=bg
