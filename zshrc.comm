@@ -1,0 +1,112 @@
+# Config here MUST be cross-platform compatible on MacOS and Linux.
+# Dedup entries in $PATH to avoid unnecessary slowdown in cmd lookup
+typeset -U PATH path
+
+# Kiro CLI pre block. Keep at the top of this file.
+[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh"
+
+# Tune zsh shell history so that it works w/ fzf's ctrl-r history search
+# More see https://zsh.sourceforge.io/Doc/Release/Parameters.html
+HISTSIZE=100000
+SAVEHIST=100000
+HISTFILE=~/.zsh_history
+# More see https://zsh.sourceforge.io/Doc/Release/Shell-Builtin-Commands.html
+setopt EXTENDED_HISTORY          # Timestamps in history
+setopt HIST_IGNORE_ALL_DUPS      # Remove older duplicate entries
+setopt HIST_REDUCE_BLANKS        # Remove superfluous blanks
+setopt SHARE_HISTORY             # Share history between sessions
+setopt INC_APPEND_HISTORY        # Write immediately, not on exit
+setopt HIST_VERIFY               # Show expanded history before executing
+
+# Use prompt via starship w/ user's own style. Config at ~/.config/starship.toml
+eval "$(starship init zsh)"
+
+# Completion system (previously provided by oh-my-zsh)
+autoload -Uz compinit && compinit
+
+# Use emacs keymap for line editing. This gives us ctrl-a/e/k/u/w/y and more out of the box.
+# For complex edits, ctrl-x-e opens $EDITOR. For full keybinding reference see:
+# https://zsh.sourceforge.io/Doc/Release/Zsh-Line-Editor.html#Standard-Widgets
+bindkey -e
+
+# History navigation
+bindkey '^P' up-line-or-search
+bindkey '^N' down-line-or-search
+
+# ctrl-x-e to edit command in $EDITOR
+autoload -Uz edit-command-line
+zle -N edit-command-line
+bindkey '^X^E' edit-command-line
+
+## Terminal text editor setup
+# set default editor
+export EDITOR=vim
+alias vi=vim
+# have Git use the terminal vim from MacVim as default editor
+export GIT_EDITOR=vim
+
+## Alias for less typing
+alias l="ls -ahl --color=auto"
+alias g=git
+alias ~="cd $HOME"
+
+# have zsh give a sanity check before rm *
+setopt RM_STAR_WAIT
+# allow us to type bash style comments on cmd
+setopt interactivecomments
+# specify startup command files whenever firing an interactive python shell
+# More see https://docs.python.org/3/tutorial/appendix.html#the-interactive-startup-file
+export PYTHONSTARTUP="$HOME/.pythonrc"
+
+# Golang setup
+export GOPATH="$HOME/go"
+export PATH="$PATH:$GOPATH/bin"
+# Set up goproxy
+export GOPROXY=direct
+# in regions(CHN for example) where Google/golang.org is blocked, use a proxy to download packages
+# export GOPROXY=https://goproxy.io
+
+export PATH=$PATH:/usr/local/bin  # MIDWAY PATH: Path changed for ssh
+# include user-supplied executables
+export PATH=$PATH:$HOME/bin:$HOME/.local/bin
+
+# customize fzf
+export FZF_DEFAULT_COMMAND='fd --unrestricted --type f'
+export FZF_DEFAULT_OPTS='--layout=reverse'
+# replace the default command trigger for ctrl-t and alt-c key bindings w/ faster fd ones
+export FZF_CTRL_T_COMMAND="fd -H -p --min-depth 1 --strip-cwd-prefix -tf -td -tl -E 'build' -E 'test-runtime' -E '.git'"
+export FZF_CTRL_T_OPTS="
+  --walker-skip .git,build
+  --preview 'bat -n --color=always --theme \"Monokai Extended Bright\" {}'
+  --preview-window 'right,border-left,50%,wrap,<50(down,50%,border-top)'
+  --bind 'ctrl-/:change-preview-window(down|hidden|)'"
+# sometimes we need to go into build and runtime dir for troubleshoot
+export FZF_ALT_C_COMMAND="fd -H -p --min-depth 1 --strip-cwd-prefix -td -tl -E '.git'"
+# tmux related
+export FZF_TMUX_HEIGHT="75%"
+# Use ` as the trigger sequence instead of the default **
+export FZF_COMPLETION_TRIGGER='`'
+# Options to fzf command
+export FZF_COMPLETION_OPTS='--info=inline'
+# set up shell bindings (requires fzf 0.48+)
+source <(fzf --zsh)
+
+# bat
+export BAT_THEME="Monokai Extended Bright"
+
+# activate mise
+eval "$(mise activate zsh)"
+
+# zoxide from cargo
+eval "$(zoxide init zsh)"
+
+# Cross-platform zsh plugin manager: antidote (https://getantidote.github.io/) Plugins listed in ~/.zsh_plugins.txt
+# Install: git clone --depth=1 https://github.com/mattmc3/antidote.git ~/.antidote
+# Per-plugin loading: omit annotation for eager, append `kind:defer` for lazy/async.
+source ~/.antidote/antidote.zsh
+antidote load
+# Tweak visual decency of suggestions from zsh-autosuggestion
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=248'
+
+# User-defined shell functions (kept in separate file to reduce clutter)
+source ~/.user_defined_functions.zsh

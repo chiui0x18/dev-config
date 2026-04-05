@@ -1,15 +1,29 @@
+[user]
+	name = CHIU
+	email = 5844553+chiui0x18@users.noreply.github.com
 [color]
-    ui = auto
+	ui = auto
 [core]
-    # so that we don't need to enter into paging mode if history etc can fit to screen
-    pager = less -FMRiX
-    editor = vim
-    excludesfile = ~/.gitignore_global
+	pager = less -FMRiX
+	editor = vim
+	excludesfile = ~/.gitignore_global
+[init]
+	defaultBranch = main
+[pull]
+	rebase = true
+[merge]
+	conflictstyle = diff3
+[rerere]
+	enabled = true
 [alias]
 	co = checkout
 	br = branch
 	ci = commit
 	st = status
-    dag = log --graph --format='format:%C(yellow)%h%C(reset) %C(cyan)\"%an\" <%ae>%C(reset) %C(red)%cr%C(reset)%C(auto)%d%C(reset)%n%s' --date-order
-    ddag = log --all --abbrev-commit --decorate --graph --date-order
-    pr = pull --rebase
+	cp = cherry-pick
+	pr = pull --rebase
+	amend = commit --amend --no-edit
+	unstage = reset HEAD --
+	lg = log --oneline --graph --decorate -20
+	dag = log --graph --format='format:%C(yellow)%h%C(reset) %C(cyan)\"%an\" <%ae>%C(reset) %C(magenta)%cr%C(reset)%C(auto)%d%C(reset)%n%s' --date-order
+	ddag = log --all --abbrev-commit --decorate --graph --date-order

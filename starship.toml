@@ -1,0 +1,64 @@
+format = """
+($python$package
+)$username[@](white)$hostname[:](white)$directory$git_branch$git_status$cmd_duration
+$character"""
+
+#continuation_prompt = "[.](bright-black) "
+
+[username]
+show_always = true
+style_user = 'white'
+style_root = 'bold red'
+format = '[$user]($style)'
+
+[hostname]
+ssh_only = false
+style = 'white'
+format = '[$hostname]($style)'
+trim_at = ''
+
+[directory]
+style = 'white'
+truncation_length = 0
+truncate_to_repo = false
+format = '[$path]($style) '
+read_only = ' ro'
+
+[git_branch]
+symbol = ''
+#format = ' [git](cyan)[:](white)[$branch](yellow)'
+format = ' [git:$branch](bold cyan)'
+truncation_symbol = '...'
+
+[git_status]
+format = '([ $all_status$ahead_behind](bold red))'
+modified = 'x'
+untracked = '?'
+staged = '+'
+deleted = '-'
+renamed = 'r'
+ahead = '>'
+behind = '<'
+diverged = '<>'
+
+[cmd_duration]
+# unit: ms
+min_time = 60000
+format = '[ took $duration]($style)'
+style = 'bold yellow'
+
+[python]
+format = '[\($virtualenv\)]($style) '
+style = '#bc91ff bold'
+symbol = ''
+detect_extensions = []
+detect_files = []
+detect_folders = []
+
+[package]
+format = '[pkg:$version]($style) '
+style = 'cyan'
+
+[character]
+success_symbol = '[\$](bold green)'
+error_symbol = '[x](bold red)'

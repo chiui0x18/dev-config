@@ -1,0 +1,7 @@
+# Zsh plugins managed by antidote (https://getantidote.github.io/)
+# One plugin per line. Append `kind:defer` to lazy-load a plugin after prompt renders.
+# Examples:
+#   some/plugin              <- eager (loaded at startup)
+#   some/plugin kind:defer   <- deferred (loaded async after prompt)
+zsh-users/zsh-autosuggestions
+zsh-users/zsh-syntax-highlighting
