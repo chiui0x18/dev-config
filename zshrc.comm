@@ -105,8 +105,8 @@ eval "$(zoxide init zsh)"
 # Per-plugin loading: omit annotation for eager, append `kind:defer` for lazy/async.
 source ~/.antidote/antidote.zsh
 antidote load
-# Tweak visual decency of suggestions from zsh-autosuggestion
-ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=248'
+# Tweak visual decency of suggestions from zsh-autosuggestion. My favorite: fg=109/139
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=139'
 
 # User-defined shell functions (kept in separate file to reduce clutter)
 source ~/.user_defined_functions.zsh
