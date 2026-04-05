@@ -46,3 +46,7 @@ mkdir -p ~/.config && ln -sf $PWD/starship.toml ~/.config/starship.toml
 
 # Open a new zsh session — antidote auto-clones plugins on first run.
 ```
+
+## Example usage
+
+See Ubuntu dev box setup script `dev.setup.ubuntu.sh`.
