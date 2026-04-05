@@ -1,6 +1,6 @@
-[user]
-	name = CHIU
-	email = 5844553+chiui0x18@users.noreply.github.com
+# [user] section is environment-specific — set via:
+#   git config --global user.name "Your Name"
+#   git config --global user.email "your@email.com"
 [color]
 	ui = auto
 [core]
