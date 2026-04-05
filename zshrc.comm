@@ -89,7 +89,16 @@ export FZF_COMPLETION_TRIGGER='`'
 # Options to fzf command
 export FZF_COMPLETION_OPTS='--info=inline'
 # set up shell bindings (requires fzf 0.48+)
-source <(fzf --zsh)
+if command -v fzf &>/dev/null; then
+  local fzf_version="${$(fzf --version)%% *}"
+  if [[ "$(printf '%s\n' "0.48.0" "$fzf_version" | sort -V | head -1)" == "0.48.0" ]]; then
+    source <(fzf --zsh)
+  else
+    echo "[WARN] fzf $fzf_version detected but >= 0.48.0 required for shell integration. Upgrade: https://github.com/junegunn/fzf#installation" >&2
+  fi
+else
+  echo "[WARN] fzf not found. Install it: https://github.com/junegunn/fzf#installation" >&2
+fi
 
 # bat
 export BAT_THEME="Monokai Extended Bright"
