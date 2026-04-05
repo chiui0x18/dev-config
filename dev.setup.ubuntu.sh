@@ -349,6 +349,10 @@ main() {
   install_dotfiles
   install_user_packages "$user_packages"
 
+  info "Cleaning up..."
+  sudo apt-get autoremove
+  sudo apt-get clean
+
   info "=== Ubuntu dev box setup complete ==="
 }
 
