@@ -16,17 +16,19 @@
 #      Depends on: git (step 1).
 #   3. VIM >= 9.2 from source: Only if system vim is too old.
 #      Depends on: git, make (step 1).
-#   4. fzf: Via git clone + install --bin (latest, not Homebrew's stale version).
+#   4. fzf: Via git clone + install --bin (latest, avoids stale Homebrew version).
 #      Depends on: git (step 1).
-#   5. fd + bat + ripgrep + yq: Binary downloads from GitHub releases.
-#      Depends on: curl (macOS built-in).
-#   6. starship: Via official install script (curl).
-#   7. zoxide: Via official install script (curl).
-#   8. mise + tools: Via curl. Installs go, rust, python, uv.
-#   9. coreutils: GNU date (gdate) needed by epoch() function.
+#   5. starship: Cross-platform prompt. Via official install script (curl).
+#   6. zoxide: Via official install script (curl).
+#   7. mise + tools: Via curl. Installs go, rust, python, uv (all --global).
+#   8. fd + bat + ripgrep: Via cargo install (cross-arch, works on arm64 and x86_64).
+#      Depends on: mise rust (step 7) providing cargo.
+#   9. yq: Binary download from GitHub releases.
+#  10. coreutils: GNU date (gdate) needed by epoch() function.
 #      This is the ONE item that requires Homebrew. Skipped if brew not found.
-#  10. Dotfiles: Clone repo, symlink configs, copy gitconfig.
+#  11. Dotfiles: Clone repo, symlink configs, copy gitconfig.
 #      Depends on: git (step 1).
+#      Override repo URL: export DOTFILES_REPO=<url> before running.
 #
 # USAGE:
 #   ./dev.setup.macos.sh
@@ -53,19 +55,6 @@ info() {
 
 err() {
   printf "[%s] ERROR: %s\n" "$(date '+%Y-%m-%d %H:%M:%S')" "$*" >&2
-}
-
-# Download and extract a tar.gz from a URL into a destination directory.
-# Usage: fetch_tar <url> <dest_dir>
-fetch_tar() {
-  local url="$1" dest="$2"
-  mkdir -p "$dest"
-  curl -fsSL "$url" | tar xz -C "$dest"
-}
-
-# Map uname -m to GitHub release arch naming conventions.
-gh_arch() {
-  if [[ "$ARCH" == "arm64" ]]; then echo "aarch64"; else echo "x86_64"; fi
 }
 
 # ---------------------------------------------------------------------------
@@ -149,61 +138,38 @@ install_fzf() {
   info "fzf installed."
 }
 
-install_binaries() {
+install_rust_tools() {
+  # fd, bat, ripgrep are Rust projects — install via cargo for cross-arch support.
+  # Depends on: mise rust (step 7) providing cargo.
+  export PATH="${HOME}/.local/bin:${PATH}"
+  eval "$(mise activate bash)"
+
+  local tools=(fd-find bat ripgrep)
+  for tool in "${tools[@]}"; do
+    local bin="${tool}"
+    [[ "$tool" == "fd-find" ]] && bin="fd"
+    [[ "$tool" == "ripgrep" ]] && bin="rg"
+    if command -v "$bin" &>/dev/null; then
+      info "${bin} already installed, skipping."
+    else
+      info "Installing ${tool} via cargo..."
+      cargo install "$tool"
+    fi
+  done
+}
+
+install_yq() {
+  if command -v yq &>/dev/null; then
+    info "yq already installed, skipping."
+    return 0
+  fi
+  info "Installing yq..."
   mkdir -p "${HOME}/.local/bin"
-  local ga
-  ga="$(gh_arch)"
-
-  # Bump these when upgrading
-  local fd_version="10.2.0"
-  local bat_version="0.25.0"
-  local rg_version="14.1.1"
-
-  # fd
-  if ! command -v fd &>/dev/null; then
-    info "Installing fd ${fd_version}..."
-    local fd_tmp
-    fd_tmp="$(mktemp -d)"
-    fetch_tar "https://github.com/sharkdp/fd/releases/latest/download/fd-v${fd_version}-${ga}-apple-darwin.tar.gz" "$fd_tmp"
-    cp "$fd_tmp"/fd-*/fd "${HOME}/.local/bin/fd"
-    chmod +x "${HOME}/.local/bin/fd"
-    rm -rf "$fd_tmp"
-  fi
-  info "fd: $(fd --version)"
-
-  # bat
-  if ! command -v bat &>/dev/null; then
-    info "Installing bat ${bat_version}..."
-    local bat_tmp
-    bat_tmp="$(mktemp -d)"
-    fetch_tar "https://github.com/sharkdp/bat/releases/latest/download/bat-v${bat_version}-${ga}-apple-darwin.tar.gz" "$bat_tmp"
-    cp "$bat_tmp"/bat-*/bat "${HOME}/.local/bin/bat"
-    chmod +x "${HOME}/.local/bin/bat"
-    rm -rf "$bat_tmp"
-  fi
-  info "bat: $(bat --version)"
-
-  # ripgrep
-  if ! command -v rg &>/dev/null; then
-    info "Installing ripgrep ${rg_version}..."
-    local rg_tmp
-    rg_tmp="$(mktemp -d)"
-    fetch_tar "https://github.com/BurntSushi/ripgrep/releases/latest/download/ripgrep-${rg_version}-${ga}-apple-darwin.tar.gz" "$rg_tmp"
-    cp "$rg_tmp"/ripgrep-*/rg "${HOME}/.local/bin/rg"
-    chmod +x "${HOME}/.local/bin/rg"
-    rm -rf "$rg_tmp"
-  fi
-  info "ripgrep: $(rg --version | head -1)"
-
-  # yq
-  if ! command -v yq &>/dev/null; then
-    info "Installing yq..."
-    local yq_arch
-    if [[ "$ARCH" == "arm64" ]]; then yq_arch="arm64"; else yq_arch="amd64"; fi
-    curl -fsSL "https://github.com/mikefarah/yq/releases/latest/download/yq_darwin_${yq_arch}" \
-      -o "${HOME}/.local/bin/yq"
-    chmod +x "${HOME}/.local/bin/yq"
-  fi
+  local yq_arch
+  if [[ "$ARCH" == "arm64" ]]; then yq_arch="arm64"; else yq_arch="amd64"; fi
+  curl -fsSL "https://github.com/mikefarah/yq/releases/latest/download/yq_darwin_${yq_arch}" \
+    -o "${HOME}/.local/bin/yq"
+  chmod +x "${HOME}/.local/bin/yq"
   info "yq: $(yq --version)"
 }
 
@@ -309,10 +275,11 @@ main() {
   install_antidote
   install_vim
   install_fzf
-  install_binaries
   install_starship
   install_zoxide
   install_mise_and_tools
+  install_rust_tools
+  install_yq
   install_coreutils
   install_dotfiles
 

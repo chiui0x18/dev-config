@@ -13,10 +13,10 @@
 #   2. Bootstrap: apt update, install curl and build-essential (GNU make + toolchain).
 #      curl may be absent on minimal Ubuntu installs; required by steps 5, 9, 10.
 #   3. git: Latest stable via ppa:git-core/ppa.
-#      Required by: vim (step 4, git clone), antidote (step 4, git clone).
+#      Required by: vim (step 5, git clone), antidote (step 4, git clone),
+#      fzf (step 7, git clone).
 #   4. zsh + antidote: Install latest zsh via apt, install antidote (plugin manager),
-#      set zsh as default shell via chsh. Installed early so subsequent tools
-#      (fzf) can detect zsh and configure shell integration for it.
+#      set zsh as default shell via chsh.
 #      Depends on: git (step 3).
 #   5. VIM >= 9.2 from source (https://github.com/vim/vim):
 #      - Configure: --with-features=huge --enable-multibyte
@@ -29,20 +29,22 @@
 #      Depends on: build-essential (step 2), git (step 3).
 #   6. tmux: Via apt.
 #   7. fzf (git clone) + fd + bat: fzf via git clone (apt versions too old for
-#      `source <(fzf --zsh)`). fd and bat via apt.
-#      Depends on: git (step 3), zsh (step 4).
-#   8. ripgrep + yq: Via apt / snap.
+#      `source <(fzf --zsh)`). fd and bat via apt (symlinked as fdfind→fd,
+#      batcat→bat).
+#      Depends on: git (step 3).
+#   8. ripgrep + yq: ripgrep via apt. yq via snap (or binary download fallback).
 #   9. starship: Cross-platform prompt. Via official install script (curl).
 #      Depends on: curl (step 2).
 #  10. zoxide: Via official install script (curl).
 #      Depends on: curl (step 2).
-#  11. mise: Via curl https://mise.run | sh. Activate in ~/.bashrc.
+#  11. mise + tools: Via curl https://mise.run | sh. Activate in ~/.bashrc.
 #      Then install: go@latest, rust@latest, python@latest, uv@latest (all --global).
 #      Depends on: curl (step 2).
 #  12. Dotfiles: Clone dotfiles repo, symlink configs, copy gitconfig.
 #      Depends on: git (step 3).
 #      Override repo URL: export DOTFILES_REPO=<url> before running.
 #  13. User-specified apt packages: Install whatever was passed via CLI arg.
+#  14. Cleanup: apt-get autoremove (interactive) + apt-get clean.
 #
 # USAGE:
 #   ./dev.box.setup.ubuntu.sh ["pkg1 pkg2 pkg3 ..."]
