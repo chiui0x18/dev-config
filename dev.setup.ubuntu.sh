@@ -270,8 +270,20 @@ install_mise_and_tools() {
   info "mise and tools installed."
 }
 
+configure_ls_colors() {
+  # Bold colors for high-visibility ls output in bright ambient environments.
+  # Format reference: https://man7.org/linux/man-pages/man5/dir_colors.5.html
+  cat > "${HOME}/.dircolors" <<'EOF'
+DIR 01;36
+EXEC 01;31
+LINK 01;35
+EOF
+  append_to_file "$BASHRC" 'eval "$(dircolors ~/.dircolors)"'
+  info "~/.dircolors written; eval added to .bashrc."
+}
+
 install_daily_utils() {
-  local utils="tree ibus-rime gnome-tweaks xclip"
+  local utils="jq tree xclip ibus-rime gnome-tweaks"
   info "Installing daily util packages: ${utils}"
   sudo apt-get install -y $utils
   info "Installed daily util packages: ${utils}"
@@ -348,8 +360,9 @@ main() {
   install_starship
   install_zoxide
   install_mise_and_tools
-  install_dotfiles
   install_user_packages "$user_packages"
+  install_dotfiles
+  configure_ls_colors
 
   info "Cleaning up..."
   sudo apt-get autoremove

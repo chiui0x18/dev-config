@@ -46,6 +46,16 @@ alias vi=vim
 export GIT_EDITOR=vim
 
 ## Alias for less typing
+## conspicuous ls colorscheme — bold cyan dirs, bold red executables, bold magenta symlinks
+## GNU/Linux: `man dircolors`
+## macOS BSD: `man ls` and look for `LSCOLORS`
+if [[ -f ~/.dircolors ]]; then
+  (( $+commands[dircolors] )) && eval "$(dircolors ~/.dircolors)"
+fi
+if [[ "$(uname)" == "Darwin" ]]; then
+  export CLICOLOR=1
+  export LSCOLORS="GxFxcxdxBxegedabagacad"
+fi
 alias l="ls -ahl --color=auto"
 alias g=git
 alias ~="cd $HOME"
