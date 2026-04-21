@@ -283,7 +283,7 @@ EOF
 }
 
 install_daily_utils() {
-  local utils="jq tree xclip ibus-rime gnome-tweaks"
+  local utils="jq tree xclip ibus-rime gnome-tweaks pass"
   info "Installing daily util packages: ${utils}"
   sudo apt-get install -y $utils
   info "Installed daily util packages: ${utils}"
