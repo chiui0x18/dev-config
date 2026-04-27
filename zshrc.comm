@@ -122,6 +122,8 @@ source ~/.antidote/antidote.zsh
 antidote load
 # Tweak visual decency of suggestions from zsh-autosuggestion. My favorite: fg=109/139
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=139'
+# Tweak zsh syntax highlight to be more conspicuous
+ZSH_HIGHLIGHT_STYLES[comment]='fg=248'
 
 # User-defined shell functions (kept in separate file to reduce clutter)
 source ~/.user_defined_functions.zsh
